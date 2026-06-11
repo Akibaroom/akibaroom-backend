@@ -7,5 +7,5 @@ import org.springframework.boot.runApplication
 class AkibaroomApplication
 
 fun main(args: Array<String>) {
-	runApplication<AkibaroomApplication>(*args)
+    runApplication<AkibaroomApplication>(*args)
 }
