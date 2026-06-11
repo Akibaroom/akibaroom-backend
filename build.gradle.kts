@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlin.spring) apply false
     alias(libs.plugins.kotlin.jpa) apply false
+    alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.spring.boot) apply false
     alias(libs.plugins.spring.dependency.management) apply false
 }
@@ -19,6 +20,7 @@ val springBootVersion = libs.versions.spring.boot.get()
 subprojects {
     apply(plugin = "org.jetbrains.kotlin.jvm")
     apply(plugin = "io.spring.dependency-management")
+    apply(plugin = "org.jlleitschuh.gradle.ktlint")
 
     extensions.configure<io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension> {
         imports {
