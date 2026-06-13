@@ -14,4 +14,6 @@ class GoodsStockPersistenceAdapter(
         goodsStockJpaRepository.save(GoodsStockJpaEntity.from(goodsStock)).toDomain()
 
     override fun findById(id: UUID): GoodsStock? = goodsStockJpaRepository.findByIdOrNull(id)?.toDomain()
+
+    override fun findByIdForUpdate(id: UUID): GoodsStock? = goodsStockJpaRepository.findByIdForUpdate(id)?.toDomain()
 }

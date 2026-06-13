@@ -34,12 +34,12 @@ class PurchaseService(
 
         if (memberRepository.findById(memberId) == null) throw BusinessException(MemberErrorCode.MEMBER_001)
 
-        val goodsStock = goodsStockRepository.findById(goodsId) ?: throw BusinessException(StockErrorCode.STOCK_002)
+        val goodsStock = goodsStockRepository.findByIdForUpdate(goodsId) ?: throw BusinessException(StockErrorCode.STOCK_002)
         goodsStock.decrease(quantity)
         goodsStockRepository.save(goodsStock)
 
         var moneyAccount =
-            moneyAccountRepository.findByMemberId(memberId)
+            moneyAccountRepository.findByMemberIdForUpdate(memberId)
                 ?: throw BusinessException(MoneyErrorCode.MONEY_003)
         val amount = goodsStock.price * quantity
         moneyAccount.withdraw(amount)

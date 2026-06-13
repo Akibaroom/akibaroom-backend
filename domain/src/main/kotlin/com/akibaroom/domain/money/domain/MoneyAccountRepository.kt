@@ -6,4 +6,6 @@ interface MoneyAccountRepository {
     fun save(moneyAccount: MoneyAccount): MoneyAccount
 
     fun findByMemberId(memberId: UUID): MoneyAccount?
+
+    fun findByMemberIdForUpdate(memberId: UUID): MoneyAccount?
 }

@@ -6,4 +6,6 @@ interface GoodsStockRepository {
     fun save(goodsStock: GoodsStock): GoodsStock
 
     fun findById(id: UUID): GoodsStock?
+
+    fun findByIdForUpdate(id: UUID): GoodsStock?
 }

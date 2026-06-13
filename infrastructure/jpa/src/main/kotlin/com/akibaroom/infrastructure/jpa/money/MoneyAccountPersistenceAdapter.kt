@@ -16,4 +16,9 @@ class MoneyAccountPersistenceAdapter(
         moneyAccountJpaRepository.findByMemberId(
             memberId,
         )?.toDomain()
+
+    override fun findByMemberIdForUpdate(memberId: UUID): MoneyAccount? =
+        moneyAccountJpaRepository.findByMemberIdForUpdate(
+            memberId,
+        )?.toDomain()
 }
