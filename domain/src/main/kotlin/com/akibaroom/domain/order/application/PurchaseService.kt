@@ -25,9 +25,9 @@ class PurchaseService(
     private val moneyAccountRepository: MoneyAccountRepository,
     private val purchaseOrderRepository: PurchaseOrderRepository,
     private val moneyLedgerRepository: MoneyLedgerRepository,
-) : PlaceOrderUseCase {
+) {
     @Transactional
-    override fun placeOrder(placeOrderCommand: PlaceOrderCommand): PlaceOrderResult {
+    fun placeOrder(placeOrderCommand: PlaceOrderCommand): PlaceOrderResult {
         val memberId = placeOrderCommand.memberId
         val goodsId = placeOrderCommand.goodsId
         val quantity = placeOrderCommand.quantity

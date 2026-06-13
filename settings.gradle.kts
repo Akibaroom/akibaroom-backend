@@ -4,5 +4,6 @@ include(
     "applications:api",
     "domain",
     "infrastructure:jpa",
+    "infrastructure:redis",
     "shared:common",
 )
