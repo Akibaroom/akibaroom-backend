@@ -15,5 +15,6 @@ class GoodsStockPersistenceAdapter(
 
     override fun findById(id: UUID): GoodsStock? = goodsStockJpaRepository.findByIdOrNull(id)?.toDomain()
 
+    @Deprecated("비관적 락 전용. Redis 분산락으로 대체됨.")
     override fun findByIdForUpdate(id: UUID): GoodsStock? = goodsStockJpaRepository.findByIdForUpdate(id)?.toDomain()
 }

@@ -17,6 +17,7 @@ class MoneyAccountPersistenceAdapter(
             memberId,
         )?.toDomain()
 
+    @Deprecated("비관적 락 전용. Redis 분산락으로 대체됨.")
     override fun findByMemberIdForUpdate(memberId: UUID): MoneyAccount? =
         moneyAccountJpaRepository.findByMemberIdForUpdate(
             memberId,
