@@ -13,7 +13,7 @@ import java.util.concurrent.TimeUnit
 @Component
 class PurchaseLockFacade(
     private val redissonClient: RedissonClient,
-    private val purchaseService: PurchaseService
+    private val purchaseService: PurchaseService,
 ) : PlaceOrderUseCase {
     override fun placeOrder(placeOrderCommand: PlaceOrderCommand): PlaceOrderResult {
         val goodsLock = redissonClient.getLock("lock:goods:${placeOrderCommand.goodsId}")
