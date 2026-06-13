@@ -15,9 +15,10 @@ abstract class IntegrationTestBase {
         val mysql: MySQLContainer<*> = MySQLContainer("mysql:8.0").also { it.start() }
 
         @JvmStatic
-        val redis: GenericContainer<*> = GenericContainer("redis:7-alpine")
-            .withExposedPorts(6379)
-            .also { it.start() }
+        val redis: GenericContainer<*> =
+            GenericContainer("redis:7-alpine")
+                .withExposedPorts(6379)
+                .also { it.start() }
 
         @JvmStatic
         @DynamicPropertySource
