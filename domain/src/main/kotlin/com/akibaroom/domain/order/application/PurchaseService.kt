@@ -25,21 +25,21 @@ class PurchaseService(
     private val moneyAccountRepository: MoneyAccountRepository,
     private val purchaseOrderRepository: PurchaseOrderRepository,
     private val moneyLedgerRepository: MoneyLedgerRepository,
-) : PlaceOrderUseCase {
+) {
     @Transactional
-    override fun placeOrder(placeOrderCommand: PlaceOrderCommand): PlaceOrderResult {
+    fun placeOrder(placeOrderCommand: PlaceOrderCommand): PlaceOrderResult {
         val memberId = placeOrderCommand.memberId
         val goodsId = placeOrderCommand.goodsId
         val quantity = placeOrderCommand.quantity
 
         if (memberRepository.findById(memberId) == null) throw BusinessException(MemberErrorCode.MEMBER_001)
 
-        val goodsStock = goodsStockRepository.findByIdForUpdate(goodsId) ?: throw BusinessException(StockErrorCode.STOCK_002)
+        val goodsStock = goodsStockRepository.findById(goodsId) ?: throw BusinessException(StockErrorCode.STOCK_002)
         goodsStock.decrease(quantity)
         goodsStockRepository.save(goodsStock)
 
         var moneyAccount =
-            moneyAccountRepository.findByMemberIdForUpdate(memberId)
+            moneyAccountRepository.findByMemberId(memberId)
                 ?: throw BusinessException(MoneyErrorCode.MONEY_003)
         val amount = goodsStock.price * quantity
         moneyAccount.withdraw(amount)

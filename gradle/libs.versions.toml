@@ -2,6 +2,7 @@
 dependency-management = "1.1.7"
 kotlin = "1.9.25"
 ktlint = "12.1.2"
+redisson = "3.27.2"
 spring-boot = "3.5.14"
 
 [plugins]

@@ -6,6 +6,7 @@ plugins {
 dependencies {
     implementation(project(":domain"))
     implementation(project(":infrastructure:jpa"))
+    implementation(project(":infrastructure:redis"))
     implementation(project(":shared:common"))
 
     implementation("org.springframework.boot:spring-boot-starter-actuator")

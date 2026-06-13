@@ -7,5 +7,6 @@ interface MoneyAccountRepository {
 
     fun findByMemberId(memberId: UUID): MoneyAccount?
 
+    @Deprecated("비관적 락 전용. Redis 분산락으로 대체됨.")
     fun findByMemberIdForUpdate(memberId: UUID): MoneyAccount?
 }
