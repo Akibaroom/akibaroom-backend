@@ -156,4 +156,34 @@ class PlaceOrderIntegrationTest : IntegrationTestBase() {
 
         assertEquals(beforeQuantity, afterQuantity)
     }
+
+    @Test
+    fun `같은 요청을 두 번 보내면 주문은 두 번 생긴다`() {
+        charge(30000)
+
+        mockMvc.perform(
+            post("/api/v1/orders")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"memberId": "$memberId", "goodsId": "$goodsId", "quantity": 1}"""),
+        )
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.data.amount").value(15000))
+            .andExpect(jsonPath("$.data.balanceAfter").value(15000))
+
+        mockMvc.perform(
+            post("/api/v1/orders")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("""{"memberId": "$memberId", "goodsId": "$goodsId", "quantity": 1}"""),
+        )
+            .andExpect(status().isCreated)
+            .andExpect(jsonPath("$.data.amount").value(15000))
+            .andExpect(jsonPath("$.data.balanceAfter").value(0))
+
+        val orderCount = jdbcTemplate.queryForObject(
+            "SELECT COUNT(*) FROM purchase_order WHERE member_id = UUID_TO_BIN(?)",
+            Long::class.java,
+            memberId,
+        )
+        assertEquals(2, orderCount)
+    }
 }
