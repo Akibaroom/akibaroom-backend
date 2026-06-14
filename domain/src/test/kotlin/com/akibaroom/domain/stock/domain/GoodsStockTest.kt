@@ -87,4 +87,47 @@ class GoodsStockTest {
         // then
         assertEquals(StockErrorCode.STOCK_003, exception.errorCode)
     }
+
+    @Test
+    fun `복구하면 남은 수량이 증가한다`() {
+        // given
+        val stock = goodsStock(100L)
+        stock.decrease(10L)
+
+        // when
+        stock.increase(10L)
+
+        // then
+        assertEquals(100L, stock.remainingQuantity)
+    }
+
+    @Test
+    fun `0개를 복구하면 STOCK_003 예외가 발생한다`() {
+        // given
+        val stock = goodsStock(100L)
+
+        // when
+        val exception =
+            assertThrows<BusinessException> {
+                stock.increase(0L)
+            }
+
+        // then
+        assertEquals(StockErrorCode.STOCK_003, exception.errorCode)
+    }
+
+    @Test
+    fun `음수를 복구하면 STOCK_003 예외가 발생한다`() {
+        // given
+        val stock = goodsStock(100L)
+
+        // when
+        val exception =
+            assertThrows<BusinessException> {
+                stock.increase(-1L)
+            }
+
+        // then
+        assertEquals(StockErrorCode.STOCK_003, exception.errorCode)
+    }
 }

@@ -18,4 +18,9 @@ class GoodsStock(
         if (remainingQuantity < quantity) throw BusinessException(StockErrorCode.STOCK_001)
         remainingQuantity -= quantity
     }
+
+    fun increase(quantity: Long) {
+        if (quantity <= 0) throw BusinessException(StockErrorCode.STOCK_003)
+        remainingQuantity += quantity
+    }
 }
