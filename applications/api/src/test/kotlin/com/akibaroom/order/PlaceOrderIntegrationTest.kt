@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
+import java.util.UUID
 
 class PlaceOrderIntegrationTest : IntegrationTestBase() {
     @Autowired
@@ -23,10 +24,11 @@ class PlaceOrderIntegrationTest : IntegrationTestBase() {
     private lateinit var jdbcTemplate: JdbcTemplate
 
     private val memberId = "019ebc6d-2cb7-759d-854f-2728b598628e"
-    private val unknownMemberId = "00000000-0000-0000-0000-000000000000"
-
     private val goodsId = "019ebc6d-2cb7-740f-b7fa-1acf0863cbcf"
-    private val unknownGoodsId = "11111111-1111-1111-1111-111111111111"
+
+    private val unknownMemberId = UUID.randomUUID().toString()
+    private val unknownGoodsId = UUID.randomUUID().toString()
+    private val idempotencyKey = UUID.randomUUID().toString()
 
     @BeforeEach
     fun setUp() {
@@ -52,6 +54,7 @@ class PlaceOrderIntegrationTest : IntegrationTestBase() {
         mockMvc.perform(
             post("/api/v1/orders")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Idempotency-Key", idempotencyKey)
                 .content("""{"memberId": "$memberId", "goodsId": "$goodsId", "quantity": 1}"""),
         )
             .andExpect(status().isCreated)
@@ -66,6 +69,7 @@ class PlaceOrderIntegrationTest : IntegrationTestBase() {
         mockMvc.perform(
             post("/api/v1/orders")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Idempotency-Key", idempotencyKey)
                 .content("""{"memberId": "$memberId", "goodsId": "$goodsId", "quantity": 1}"""),
         )
             .andExpect(status().isCreated)
@@ -102,6 +106,7 @@ class PlaceOrderIntegrationTest : IntegrationTestBase() {
         mockMvc.perform(
             post("/api/v1/orders")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Idempotency-Key", idempotencyKey)
                 .content("""{"memberId": "$unknownMemberId", "goodsId": "$goodsId", "quantity": 1}"""),
         )
             .andExpect(status().isNotFound)
@@ -113,6 +118,7 @@ class PlaceOrderIntegrationTest : IntegrationTestBase() {
         mockMvc.perform(
             post("/api/v1/orders")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Idempotency-Key", idempotencyKey)
                 .content("""{"memberId": "$memberId", "goodsId": "$unknownGoodsId", "quantity": 1}"""),
         )
             .andExpect(status().isNotFound)
@@ -124,6 +130,7 @@ class PlaceOrderIntegrationTest : IntegrationTestBase() {
         mockMvc.perform(
             post("/api/v1/orders")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Idempotency-Key", idempotencyKey)
                 .content("""{"memberId": "$memberId", "goodsId": "$goodsId", "quantity": 10000}"""),
         )
             .andExpect(status().isConflict)
@@ -142,6 +149,7 @@ class PlaceOrderIntegrationTest : IntegrationTestBase() {
         mockMvc.perform(
             post("/api/v1/orders")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Idempotency-Key", idempotencyKey)
                 .content("""{"memberId": "$memberId", "goodsId": "$goodsId", "quantity": 1}"""),
         )
             .andExpect(status().isConflict)
@@ -158,12 +166,14 @@ class PlaceOrderIntegrationTest : IntegrationTestBase() {
     }
 
     @Test
-    fun `같은 요청을 두 번 보내면 주문은 두 번 생긴다`() {
+    fun `같은 멱등성 키로 두 번 보내면 주문은 한 번만 생긴다`() {
         charge(30000)
+        val idempotencyKey = UUID.randomUUID().toString()
 
         mockMvc.perform(
             post("/api/v1/orders")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Idempotency-Key", idempotencyKey)
                 .content("""{"memberId": "$memberId", "goodsId": "$goodsId", "quantity": 1}"""),
         )
             .andExpect(status().isCreated)
@@ -173,17 +183,19 @@ class PlaceOrderIntegrationTest : IntegrationTestBase() {
         mockMvc.perform(
             post("/api/v1/orders")
                 .contentType(MediaType.APPLICATION_JSON)
+                .header("Idempotency-Key", idempotencyKey)
                 .content("""{"memberId": "$memberId", "goodsId": "$goodsId", "quantity": 1}"""),
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.data.amount").value(15000))
-            .andExpect(jsonPath("$.data.balanceAfter").value(0))
+            .andExpect(jsonPath("$.data.balanceAfter").value(15000))
 
-        val orderCount = jdbcTemplate.queryForObject(
-            "SELECT COUNT(*) FROM purchase_order WHERE member_id = UUID_TO_BIN(?)",
-            Long::class.java,
-            memberId,
-        )
-        assertEquals(2, orderCount)
+        val orderCount =
+            jdbcTemplate.queryForObject(
+                "SELECT COUNT(*) FROM purchase_order WHERE member_id = UUID_TO_BIN(?)",
+                Long::class.java,
+                memberId,
+            )
+        assertEquals(1, orderCount)
     }
 }

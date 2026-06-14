@@ -6,4 +6,5 @@ data class PlaceOrderCommand(
     val memberId: UUID,
     val goodsId: UUID,
     val quantity: Long,
+    val idempotencyKey: String,
 )
